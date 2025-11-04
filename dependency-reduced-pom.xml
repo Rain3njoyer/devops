@@ -31,12 +31,17 @@
                   </excludes>
                 </filter>
               </filters>
+              <relocations>
+                <relocation>
+                  <pattern>com.mongodb</pattern>
+                  <shadedPattern>shadow.com.mongodb</shadedPattern>
+                </relocation>
+              </relocations>
               <transformers>
                 <transformer>
                   <mainClass>com.napier.devops.App</mainClass>
                 </transformer>
               </transformers>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
             </configuration>
           </execution>
         </executions>
