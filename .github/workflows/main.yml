@@ -1,0 +1,41 @@
+name: CI - Build and Docker run
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+
+jobs:
+  build-and-run:
+    name: Build, Dockerize and Run
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build (Maven package)
+        run: mvn -B package --file pom.xml
+
+      - name: Create Docker network & start Mongo
+        run: |
+          docker network create --driver bridge se-methods || echo "network exists"
+          docker pull mongo:latest
+          docker run -d --name mongo-dbserver --network se-methods mongo:latest
+
+      - name: Build Docker image for app
+        run: docker build -t se_methods_app .
+
+      - name: Run app container (connects to mongo network)
+        run: docker run --name devopscontainer --network se-methods --rm -d se_methods_app
+
+      - name: View app logs (short)
+        run: docker logs devopscontainer --tail 50
